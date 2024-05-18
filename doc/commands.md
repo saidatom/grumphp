@@ -26,6 +26,7 @@ GrumPHP will be triggered with GIT hooks. However, you can run following command
 ```sh
 php ./vendor/bin/grumphp git:pre-commit
 php ./vendor/bin/grumphp git:commit-msg
+php ./vendor/bin/grumphp git:pre-push
 ```
 
 Both commands support raw git diffs and file lists as STDIN input. 
@@ -76,4 +77,3 @@ git ls-files src | php ./vendor/bin/grumphp run
 ```
 
 :exclamation: *If you use the stdin, we won't be able to answer questions interactively.*
- 

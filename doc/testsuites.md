@@ -44,4 +44,7 @@ grumphp:
         # Specify the test-suite for the git:pre-commit command:
         git_pre_commit:
             tasks: []
+        # Specify the test-suite for the git:pre-push command:
+        git_pre_push:
+            tasks: []
 ```

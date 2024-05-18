@@ -11,6 +11,7 @@ use GrumPHP\Task\Config\EmptyTaskConfig;
 use GrumPHP\Task\Config\TaskConfigInterface;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
+use GrumPHP\Task\Context\GitPrePushContext;
 use GrumPHP\Task\Context\RunContext;
 use GrumPHP\Util\Filesystem;
 use SimpleXMLElement;
@@ -72,7 +73,9 @@ class CloverCoverage implements TaskInterface
      */
     public function canRunInContext(ContextInterface $context): bool
     {
-        return $context instanceof GitPreCommitContext || $context instanceof RunContext;
+        return $context instanceof GitPreCommitContext
+            || $context instanceof GitPrePushContext
+            || $context instanceof RunContext;
     }
 
     /**
