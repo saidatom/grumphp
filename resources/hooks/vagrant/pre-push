@@ -1,0 +1,13 @@
+#!/bin/sh
+
+$(ENV)
+
+# Run GrumPHP
+cd $(VAGRANT_HOST_DIR) && vagrant ssh --command '$(which sh)' << COMMANDS
+  cd $(VAGRANT_PROJECT_DIR)
+
+  # Add grumphp envs:
+  $(ENV)
+
+  $(EXEC_GRUMPHP_COMMAND) $(HOOK_COMMAND))
+COMMANDS

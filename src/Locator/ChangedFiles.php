@@ -10,7 +10,7 @@ use GrumPHP\Collection\FilesCollection;
 use GrumPHP\Git\GitRepository;
 use GrumPHP\Util\Filesystem;
 use GrumPHP\Util\Paths;
-use Symfony\Component\Finder\SplFileInfo;
+use SplFileInfo;
 
 /**
  * Class Git.
@@ -46,35 +46,64 @@ class ChangedFiles
         return $this->parseFilesFromDiff($diff);
     }
 
+    public function getLocalRef(): ?string
+    {
+        return $this->repository->run('symbolic-ref', ['HEAD']);
+    }
+    public function getLocalSHA1(): ?string
+    {
+        return $this->repository->run('rev-parse', ['HEAD']);
+    }
+    private function getRemoteRef(): ?string
+    {
+        return $this->repository->tryToRunWithFallback(
+            function (): ?string {
+                return $this->repository->run('rev-parse', ['--abbrev-ref', '--symbolic-full-name', '@{u}']);
+            },
+            'null'
+        );
+    }
+    
+    public function getRemoteSHA1(): ?string
+    {
+        if ($this->getRemoteRef() === 'null') {
+            return null;
+        }
+        /**
+         * @psalm-suppress PossiblyUndefinedArrayOffset
+         * @psalm-suppress PossiblyNullArgument
+         */
+        list($remoteName, $branchName) = explode('/', $this->getRemoteRef(), 2);
+        $output = $this->repository->run('ls-remote', [$remoteName, $branchName]);
+        return $output ? strtok($output, "\t") : null;
+    }
+
     /**
      * @return FilesCollection
      */
-    public function locateFromGitPushedRepository()
+    public function locateFromGitDiff(string $fromSha, ?string $toSha): FilesCollection
     {
-        $local_branch = explode("\n", $this->repository->run('name-rev', array('--name-only', 'HEAD')));
-        $tracking_branch = explode("\n", str_replace(
-            'refs/heads/',
-            '',
-            $this->repository->run('config', array('branch.'.$local_branch[0].'.merge'))
-        ));
-        $tracking_remote = explode("\n", $this->repository->run('config', array('branch.'.$local_branch[0].'.remote')));
-        $diff = explode("\n", $this->repository->run(
-            'diff',
-            array($tracking_remote[0].'/'.$tracking_branch[0].'..HEAD', '--name-only', '--oneline')
-        ));
-        // In case there are no commit
-        if (empty($diff[0])) {
-            return false;
+        if (empty($toSha)) {
+            $toSha = 'HEAD';
+        }
+        $files = [];
+        $commits = $fromSha . '..' . $toSha;
+        $diff = $this->repository->tryToRunWithFallback(
+            function () use ($commits): ?string {
+                return $this->repository->run('diff', ['--name-only', trim($commits), '--oneline']);
+            },
+            'null'
+        );
+        if ($diff === 'null') {
+            return new FilesCollection($files);
         }
 
-        foreach ($diff as $file) {
-            $fileObject = new SplFileInfo($file, dirname($file), $file);
+        foreach (explode("\n", $diff) as $file) {
+            $fileObject = new SplFileInfo($file);
             $files[] = $fileObject;
         }
 
-
-        $diff = new FilesCollection($files);
-        return $diff;
+        return new FilesCollection($files);
     }
 
     public function locateFromRawDiffInput(string $rawDiff): FilesCollection
@@ -106,6 +135,6 @@ class ChangedFiles
             $file->isRename() ? $file->getNewName() : $file->getName()
         );
 
-        return new SplFileInfo($filePath, dirname($filePath), $filePath);
+        return new SplFileInfo($filePath);
     }
 }

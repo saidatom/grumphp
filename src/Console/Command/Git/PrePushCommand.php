@@ -83,28 +83,33 @@ class PrePushCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
-        $files = $this->getPushedFiles();
+        $localRef = $this->changedFilesLocator->getLocalRef();
+        $localSha = $this->changedFilesLocator->getLocalSHA1();
+        $remoteSha = $this->changedFilesLocator->getRemoteSHA1();
 
-        $context = (
+        $taskRunnerContext = (
             new TaskRunnerContext(
-                new GitPrePushContext($files),
+                new GitPrePushContext($this->getPushedFiles($localRef, $localSha, $remoteSha)),
                 $this->testSuites->getOptional('git_pre_push')
             )
         )->withSkippedSuccessOutput((bool) $input->getOption('skip-success-output'));
 
         $output->writeln('<fg=yellow>GrumPHP detected a pre-push command.</fg=yellow>');
-
-        $results = $this->taskRunner->run($context);
+        $results = $this->taskRunner->run($taskRunnerContext);
 
         return $results->isFailed() ? self::EXIT_CODE_NOK : self::EXIT_CODE_OK;
     }
 
-    protected function getPushedFiles(): FilesCollection
+    protected function getPushedFiles(?string $localRef, ?string $localSha, ?string $remoteSha): FilesCollection
     {
-        if ($stdin = $this->io->readCommandInput(STDIN)) {
-            return $this->changedFilesLocator->locateFromRawDiffInput($stdin);
+        if (empty($remoteSha)) {
+            return $this->changedFilesLocator->locateFromRawDiffInput('HEAD');
         }
 
-        return $this->changedFilesLocator->locateFromGitPushedRepository();
+        if ($localRef === '(delete)') {
+            return new FilesCollection([]);
+        }
+
+        return $this->changedFilesLocator->locateFromGitDiff($remoteSha, $localSha);
     }
 }

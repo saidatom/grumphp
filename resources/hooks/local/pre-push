@@ -1,18 +1,6 @@
 #!/bin/sh
 
-remote="$1"
-
-while read local_ref local_sha remote_ref remote_sha
-do
-    # Get the branch name
-    local_ref=$(basename $local_ref)
-    break
-done
-
 $(ENV)
 
-# Fetch the GIT diff and format it as command input:
-DIFF=$(git diff --name-only "$remote"/"$local_ref"..HEAD --oneline)
-
-# Run GrumPHP and Clean exit:
-exit (cd "./" && printf "%s\n" "${DIFF}" | exec $(EXEC_GRUMPHP_COMMAND) $(HOOK_COMMAND));
+# Run GrumPHP
+(cd "${HOOK_EXEC_PATH}" | $(EXEC_GRUMPHP_COMMAND) $(HOOK_COMMAND))
