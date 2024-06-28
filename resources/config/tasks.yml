@@ -97,6 +97,13 @@ services:
         tags:
             - {name: grumphp.task, task: gherkin}
 
+    GrumPHP\Task\GherkinLint:
+      arguments:
+        - '@process_builder'
+        - '@formatter.raw_process'
+      tags:
+        - { name: grumphp.task, task: gherkin_lint }
+
     GrumPHP\Task\Git\Blacklist:
         arguments:
             - '@process_builder'

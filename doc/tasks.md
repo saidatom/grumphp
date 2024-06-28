@@ -23,6 +23,7 @@ grumphp:
         eslint: ~
         file_size: ~
         gherkin: ~
+        gherkin_lint: ~
         git_blacklist: ~
         git_branch_name: ~
         git_commit_message: ~
