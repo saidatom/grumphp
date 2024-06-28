@@ -6,7 +6,7 @@ namespace GrumPHPTest\Unit\Task;
 
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
-use GrumPHP\Task\Gherkin;
+use GrumPHP\Task\GherkinLint;
 use GrumPHP\Task\TaskInterface;
 use GrumPHP\Test\Task\AbstractExternalTaskTestCase;
 
@@ -14,7 +14,7 @@ class GherkinLintTest extends AbstractExternalTaskTestCase
 {
     protected function provideTask(): TaskInterface
     {
-        return new Gherkin(
+        return new GherkinLint(
             $this->processBuilder->reveal(),
             $this->formatter->reveal()
         );

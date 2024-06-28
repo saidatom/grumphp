@@ -54,7 +54,7 @@ class GherkinLint extends AbstractExternalTask
 
         $arguments = $this->processBuilder->createArgumentsForCommand('gherkinlint');
         $arguments->add('lint');
-        $arguments->addOptionalArgument('--config=%s', $config['align']);
+        $arguments->addOptionalArgument('--config=%s', $config['config']);
         $arguments->add($config['directory']);
 
         $process = $this->processBuilder->buildProcess($arguments);
