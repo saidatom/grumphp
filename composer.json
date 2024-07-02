@@ -52,7 +52,7 @@
         "brianium/paratest": "Lets GrumPHP run PHPUnit in parallel.",
         "codeception/codeception": "Lets GrumPHP run your project's full stack tests",
         "consolidation/robo": "Lets GrumPHP run your automated PHP tasks.",
-        "dantleech/ngherkin-lint-php": "Lets GrumPHP lint your Gherkin files.",
+        "dantleech/gherkin-lint": "Lets GrumPHP lint your Gherkin files.",
         "designsecurity/progpilot": "Lets GrumPHP be sure that there are no vulnerabilities in your code.",
         "doctrine/orm": "Lets GrumPHP validate your Doctrine mapping files.",
         "enlightn/security-checker": "Lets GrumPHP be sure that there are no known security issues.",
